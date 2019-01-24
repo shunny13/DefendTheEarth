@@ -1,22 +1,26 @@
+//Global variables
 var player;
 var score;
 var bullets = [];
 var ennemies = [];
+
+//It counts the frames
 var counter = 0;
 var level =0;
 var difficulty = 1;
+
+//It's making sure that the game doesn't instantly starts
 var start = false;
+
+//Vague attempt to declare and use a sound variable
 
 var mainSound;
 
-	mainSound = new Audio('../sound/main.mp3');
 
 function setup(){
 	createCanvas(640,480);
 	player = new player();
 	score = 0;
-	mainSound = new Audio('../sound/main.mp3');
-	mainSound.play();
 }
 
 
@@ -34,7 +38,6 @@ function draw(){
 			levelup();
 			level = score /1000;
 			difficulty = level;
-		console.log(level);
 		}
 		
 
@@ -83,6 +86,17 @@ function draw(){
 	else{
 		startScreen();
 	}
+}
+
+var playSound = function(url){
+  var audio = document.createElement('audio');
+  audio.style.display = "none";
+  audio.src = url;
+  audio.autoplay = true;
+  audio.onended = function(){
+    audio.remove() //Remove when played.
+  };
+  document.body.appendChild(audio);
 }
 
 var startScreen = function(){
