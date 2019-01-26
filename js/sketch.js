@@ -1,28 +1,33 @@
-//Global variables
 var player;
 var score;
 var bullets = [];
 var ennemies = [];
-
-//It counts the frames
 var counter = 0;
 var level =0;
 var difficulty = 1;
-
-//It's making sure that the game doesn't instantly starts
 var start = false;
+var basicVolume = 0.1;
 
-//Vague attempt to declare and use a sound variable
-
-var mainSound;
+function preload(){
+	soundFormats('mp3', 'ogg');
+	mySound = loadSound('sound/main.ogg');
+}
 
 
 function setup(){
 	createCanvas(640,480);
 	player = new player();
 	score = 0;
+	mySound.setVolume(basicVolume);
+	mySound.onended(soundDone);
 }
 
+var soundDone = function(){
+	mySound.playMode('restart');
+  	mySound.setVolume(basicVolume);
+	mySound.play();
+	
+}
 
 function draw(){
 	background(150);
@@ -30,14 +35,25 @@ function draw(){
 	if (start){
 		textSize(10);
 		textStyle(BOLD);
+		fill('green');
 		text('Score : '+score.toString(), 10, 15);
 		text('Level : '+(level+1).toString(), 10, 30);
+		noFill();
+		//
+		
+		//SOUND
+		fill('green');
+		text('SOUND on/off', 595,15);
+		noFill();
+			
+
 		//
 		
 		if(score%1000==0 && score !=0 ){
 			levelup();
 			level = score /1000;
 			difficulty = level;
+		console.log(level);
 		}
 		
 
@@ -71,15 +87,16 @@ function draw(){
 		}
 		
 		
-		for(var i= ennemies.length-1; i>0;i--){
+		for(var i= ennemies.length-1; i>=0;i--){
 			if(ennemies[i].y>=height){
 				alert ("GAME OVER. Score : "+score.toString() +" Level : "+level.toString());
 				location.reload();
 			}
-			if (ennemies[i].toDelete || ennemies[i].y>=height) ennemies.splice(i,1);
+			if (ennemies[i].toDelete || ennemies[i].y>=height) { ennemies.splice(i,1); }
 		}
-		for(var i=bullets.length-1 ; i>0 ; i--){
-			if (bullets[i].toDelete || bullets[i].y < 0 || bullets[i].x<0 || bullets[i].x>width) bullets.splice(i,1);
+		for(var i=bullets.length-1 ; i>=0 ; i--){
+			if (bullets[i].toDelete || bullets[i].y < 0 ||
+				bullets[i].x<0 || bullets[i].x>width) { bullets.splice(i,1); }
 		}
 		counter ++;
 	}
@@ -88,16 +105,6 @@ function draw(){
 	}
 }
 
-var playSound = function(url){
-  var audio = document.createElement('audio');
-  audio.style.display = "none";
-  audio.src = url;
-  audio.autoplay = true;
-  audio.onended = function(){
-    audio.remove() //Remove when played.
-  };
-  document.body.appendChild(audio);
-}
 
 var startScreen = function(){
 	fill('green');
@@ -111,8 +118,21 @@ var startScreen = function(){
 function mouseClicked(){
 	if(!start && mouseX>width/2-70 && mouseX<width/2+70 && mouseY>height/2-100 && mouseY<height/2-50) {
 			start = true;
+			mySound.play();
+	}
+	if(mouseX>595 && mouseX<640 && mouseY>0 && mouseY<15){
+		if(basicVolume > 0 ){
+			basicVolume = 0;
+			mySound.setVolume(basicVolume);
+			console.log("muted");
+		}else{
+			basicVolume = 0.1;
+			mySound.setVolume(basicVolume);
+			console.log("NOT MUTED");
+		}
 	}
 }
+
 
 var levelup = function(){
 	textSize(50);
@@ -150,5 +170,4 @@ function keyPressed(){
 		}
 	}
 }
-
 
