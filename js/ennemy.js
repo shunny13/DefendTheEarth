@@ -1,5 +1,5 @@
 function ennemy(difficulty){
-	this.x = random(20,width-20);
+	this.x = random(smallX,smallX+smallW-20);
 	this.y = random(-50,-20);
 	this.spd = random(1*difficulty,3*difficulty);
 	this.hp = random(1,5);
