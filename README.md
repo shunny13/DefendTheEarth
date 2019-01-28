@@ -9,13 +9,10 @@ The more higher you level is, the faster will be the asteroids.
 
 #ToDo
  - Add crates that player can shoot in order to get short period bonuses.
- - Add SFX.
  - Add css
  - Add sprites
  - Add a leaderboard with a database (probably progrsql)
  - Add local multiplayer
 
 #Bugs
- - The sound file doesn't read
- - At the begining of each game, the first bullet and the first asteroid are invincible . They don't make you loose the game, but they don't destroy each other at the collision
-
+ - Randomly some ennemies are invulnerable 
