@@ -6,26 +6,35 @@ var counter = 0;
 var level =0;
 var difficulty = 1;
 var start = false;
-var basicVolume = 0.1;
+var basicVolume = 0.05;
+var lvlupcalled = true;
 
 function preload(){
 	soundFormats('mp3', 'ogg');
-	mySound = loadSound('sound/main.ogg');
+	mySoundSFX = loadSound('sound/main.ogg');
+	lazerSFX = loadSound('sound/lazer.ogg');
+	crashSFX = loadSound('sound/crash.ogg');
+	lvlupSFX = loadSound('sound/lvlup.ogg');
 }
+
 
 
 function setup(){
 	createCanvas(640,480);
 	player = new player();
 	score = 0;
-	mySound.setVolume(basicVolume);
-	mySound.onended(soundDone);
+	mySoundSFX.setVolume(basicVolume);
+	mySoundSFX.onended(soundDone);
+
+	lazerSFX.setVolume(basicVolume);
+	crashSFX.setVolume(basicVolume);
+	lvlupSFX.setVolume(basicVolume);
 }
 
 var soundDone = function(){
-	mySound.playMode('restart');
-  	mySound.setVolume(basicVolume);
-	mySound.play();
+	mySoundSFX.playMode('restart');
+  	mySoundSFX.setVolume(basicVolume);
+	mySoundSFX.play();
 	
 }
 
@@ -49,12 +58,15 @@ function draw(){
 
 		//
 		
-		if(score%1000==0 && score !=0 ){
+		if(score%300==0 && score !=0 ){
 			levelup();
 			level = score /1000;
 			difficulty = level;
-		console.log(level);
-		}
+			if(lvlupcalled){
+				lvlupSFX.play();
+				lvlupcalled = false;
+			}
+		}else {lvlupcalled = true; }
 		
 
 		mouvement();
@@ -79,6 +91,7 @@ function draw(){
 		for(var i=0;i<bullets.length;i++){
 			for(var e =0; e<ennemies.length;e++){
 				if(bullets[i].hits(ennemies[e])){
+					crashSFX.play();
 					bullets[i].dead();
 					ennemies[e].dead();
 					score+=100;
@@ -106,6 +119,7 @@ function draw(){
 }
 
 
+
 var startScreen = function(){
 	fill('green');
 	rect(width/2-70,height/2-100,100,50);
@@ -118,27 +132,27 @@ var startScreen = function(){
 function mouseClicked(){
 	if(!start && mouseX>width/2-70 && mouseX<width/2+70 && mouseY>height/2-100 && mouseY<height/2-50) {
 			start = true;
-			mySound.play();
+			mySoundSFX.play();
 	}
 	if(mouseX>595 && mouseX<640 && mouseY>0 && mouseY<15){
 		if(basicVolume > 0 ){
 			basicVolume = 0;
-			mySound.setVolume(basicVolume);
-			console.log("muted");
+			mySoundSFX.setVolume(basicVolume);
 		}else{
 			basicVolume = 0.1;
-			mySound.setVolume(basicVolume);
-			console.log("NOT MUTED");
+			mySoundSFX.setVolume(basicVolume);
 		}
 	}
 }
 
 
 var levelup = function(){
-	textSize(50);
+	textSize(50);0
 	textStyle(BOLD);
+	fill('green');
 	text('LEVEL UP', width/2-120, height/2-50);
 }
+
 
 function mouvement(){
 	if (keyIsDown(RIGHT_ARROW)){
@@ -150,6 +164,7 @@ function mouvement(){
 
 function keyPressed(){
 	if(key == ' '){
+		lazerSFX.play();
 		var b = new bullet(player.x,player.y-15,0,-5);
 		bullets.push(b);
 		if(level>=1){
