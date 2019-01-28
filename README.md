@@ -16,3 +16,4 @@ The more higher you level is, the faster will be the asteroids.
 
 #Bugs
  - Randomly some ennemies are invulnerable 
+ - Every 2 ennemies, the ennimes dead() = True when it spawns, dunno why
