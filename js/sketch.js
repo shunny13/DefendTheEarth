@@ -58,7 +58,7 @@ function draw(){
 
 		//
 		
-		if(score%300==0 && score !=0 ){
+		if(score%1000==0 && score !=0 ){
 			levelup();
 			level = score /1000;
 			difficulty = level;
