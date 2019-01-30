@@ -3,7 +3,6 @@ var player;
 var playerSize =20; //Standard size = 20
 var playerSpd = 6; //Standard Speed = 6
 var shootAllow = true;
-
 //VARIABLES FOR HUD
 var score;
 var counterFrame = 0;
@@ -13,18 +12,18 @@ var rectangleObjects = [];
 let playBtn;
 let pauseBtn;
 var play=true;
-
+var surcharge = [];
+var surchargedShot = -1;
+var startShooting=Date.now();
 //VARIABLE TO UTILISE IN GAME OBJECTS
 var bullets = [];
 var ennemies = [];
 var ennemies_speed=[];
-
 //VARIABLES FOR THE BACKGROUND USE
 var start = false;
 var basicVolume = 0.1;
 var lvlupcalled = true;
 var playerWasHit = false;
-
 //VARIABLES FOR THE SMALL SCREEN
 var smallW;
 var smallH;
@@ -42,7 +41,6 @@ function preload(){
 	pauseBtn = loadImage('img/Button-Pause-icon.png');
 }
 
-
 //MAKES THE INITIAL SETUP
 function setup(){
 	//THE MAIN CANVAS
@@ -53,7 +51,6 @@ function setup(){
 	smallH = 480;
 	smallX = (width-smallW+20)/2;
 	smallY = (height-smallH)/2;
-
 	//CREATION OF THE PLAYER	
 	player = new player // X,Y, spd,LimitLeft,LimitRight,Size
 	( 
@@ -64,16 +61,40 @@ function setup(){
 		smallX+smallW-playerSize,
 		playerSize 
 	);
-	
 	//INITIALIZING THE SCORE
 	score = 0;
-	
 	//INITIALIZING THE SOUNDS iN THE GAME
 	mySoundSFX.setVolume(basicVolume);
 	mySoundSFX.onended(soundDone);
 	lazerSFX.setVolume(basicVolume);
 	crashSFX.setVolume(basicVolume);
 	lvlupSFX.setVolume(basicVolume);
+	rectangleObjects['overload'] = {
+		xd:35,
+		yd:125,
+		xf:65,
+		yf:225
+	};
+	if(surcharge.length  == 0){
+		sur = rectangleObjects['overload'];
+        	for(var i = sur.yd;i< sur.yf;i+=20){
+        		var left = true;
+        		for(var l=0;l<=1;l++){
+        			var toPush=[];
+        			if(left){
+        				toPush.push(sur.xd);
+        			}else{
+        				toPush.push( (sur.xf-sur.xd)/2 + sur.xd);
+        			}
+        			left = !left;
+        			toPush.push(i);
+        			toPush.push(15);
+        			toPush.push(20);
+        			surcharge.push(toPush);
+        		}
+        	}
+        }
+	surcharge.reverse();
 }
 
 // THE DRAWING FUNCTION A.K.A GAME ENGINE
@@ -82,7 +103,7 @@ function draw(){
 	fill('black');
 	drawRect("smallRectangle",smallX,smallY,smallW,smallH);
 	if (start){
-
+	
 		//SCORE AND LEVEL ///////////////////////////////
 		fill('black');
 		drawRect("scores",5,5,90,30);
@@ -111,7 +132,6 @@ function draw(){
 				ennemies_speed.push(ennemies[i].spd);	
 				ennemies[i].spd =0;
 			}
-			console.log(ennemies);
 		}
 		else{
 			shootAllow = true;
@@ -124,7 +144,6 @@ function draw(){
 				ennemies_speed=[];
 			}
 		}
-		
 		//////////////////////////////////////////////
 
 		// LEVEL UP /////////////////////////////////
@@ -139,7 +158,6 @@ function draw(){
 				if(player.hp == 99 ) player.hp = 99;
 			}
 		}else {lvlupcalled = true; }
-		
 		//////////////////////////////////////////////
 		
 		//PLAYER RENDER/////////////////////////////
@@ -162,24 +180,41 @@ function draw(){
 
 		}
 		////////////////////////////////////////////
+		// CREATE AND RENDER THE OVERCHARGE BAR /////////
+		fill('green');
+		textSize(12);
+		text('OVERLOAD',12,115);	
+		fill('black');
+		strokeWeight(2);
+		stroke(51);
+		rect(35,125,30,100);
+		noFill();
+		fill('red');
+
+		if(surchargedShot<=-1) surchargedShot = -1;
+		// ADD FUNCTION FOR OVERLOAD 
+		if(surchargedShot ==10) {
+			surchargedShot=-1;
+		}
+		for (var i=0 ; i<=surchargedShot;i++){
+			var sur = surcharge[i];
+			rect(sur[0],sur[1],sur[2],sur[3]);
+		}
+		
+		// /////////////////////////////////////////
 
 		//RENDER THE ENNEMIES ///////////////////////
 		for(var e=ennemies.length-1;e>=0;e--){
 			ennemies[e].show();
 			ennemies[e].move();
 		}
-
 		/////////////////////////////////////////////
-
 		//RENDER THE BULLETS////////////////////////
 		for(var i=bullets.length-1;i>=0;i--){
 			bullets[i].show();
 			bullets[i].move();
 		}
-		
 		/////////////////////////////////////////////
-		
-
 		//CHECKING FOR COLLISION BULLET ENNEMY //////
 		for(var i=0;i<bullets.length;i++){
 			for(var e =0;e<ennemies.length;e++){
@@ -193,18 +228,16 @@ function draw(){
 		}
 
 		/////////////////////////////////////////////
-		
 		//CHECKING IF THE ENNEMY WENT PAST THE PLAYER ///
-		for(var e=0;e<ennemies.length;e++){
+		 for(var e=0;e<ennemies.length;e++){
 			if(ennemies[e].y-ennemies[e].r>=smallH+smallY){
 				playerWasHit = true;
 				ennemies[e].dead();
 			}
-			if (ennemies[e].toDelete) { ennemies.splice(i,1); }
-		}
-		
+			
+			if (ennemies[e].toDelete)  ennemies.splice(e,1);
+		}	
 		/////////////////////////////////////////////
-
 		//DELETING BULLETS IF THEY GO OFF THE SCREEN////
 		for(var i=bullets.length-1 ; i>=0 ; i--){
 			if (bullets[i].toDelete || bullets[i].y < 30 || bullets[i].x<smallX || bullets[i].x>smallW+smallX) 
@@ -217,9 +250,8 @@ function draw(){
 		
 		// INCREMENTING THE COUNTER OF FRAMES
 		counterFrame ++;
-		/////////////////////////////////////////////
+		/////////////////// END OF if(start) /////////////////////////
 	}
-
 	else {
 		startScreen();
 	}
@@ -236,9 +268,9 @@ function draw(){
 		alert ("GAME OVER. Score : "+score.toString() +" Level : "+(level+1).toString());
 		location.reload();
 	}
-	/////////////////////////////////////////////
 }
 
+/////////////////////// END OF DRAW //////////////////////
 
 // THE WELCOME SCREEN ////////////////////////////////////////////
 var startScreen = function(){
@@ -252,7 +284,6 @@ var startScreen = function(){
 /////////////////////////////////////////////
 	
 // HELPS TO CHECK IF THE MOUSE CLICKED ON AN IMPORTANT OPTION /////
-var r;
 var isRectClicked = function(name){
 	r = rectangleObjects[name];
 	mx = mouseX;
@@ -303,6 +334,8 @@ function mouvement(){
 // LISTENS TO ALL THE KEY PRESSED AND ACTIVATES DIFFERENT EVENTS ///////
 function keyPressed(){
 	if(key == ' ' && shootAllow){
+		startShooting = Date.now();
+		surchargedShot++;
 		lazerSFX.play();
 		var b = new bullet(player.x,player.y-15,0,-5);
 		bullets.push(b);
@@ -325,6 +358,15 @@ function keyPressed(){
 	}
 	if(key =='p') {
 		play= !play;
+	}
+	if(key =='m'){
+		if(basicVolume > 0 ){
+			basicVolume = 0;
+			mySoundSFX.setVolume(basicVolume);
+		}else{
+			basicVolume = 0.1;
+			mySoundSFX.setVolume(basicVolume);
+		}
 	}
 }
 //////////////////////////////////////////////
@@ -354,3 +396,4 @@ var drawRect = function(id,x,y,width,height){
 	rectangleObjects[id] =  rectangle;
 }
 //////////////////////////////////////////////
+
