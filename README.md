@@ -12,10 +12,9 @@ The more higher you level is, the faster will be the asteroids.
  - Add css
  - Add sprites
  - Add a leaderboard with a database (probably progrsql)
- - Add local multiplayer
+ - Add event that, every 1 sec, 1 point of overload goes down
+ - Add event when the overload bar is full 
 
 #Bugs
- - Randomly some ennemies are invulnerable 
- - Every 2 ennemies, the ennimes dead() = True when it spawns, dunno why
+	
 
-checking new ssh
