@@ -5,9 +5,9 @@ function bullet(x,y,spdx,spdy){
 	this.spdy = spdy;
 	this.r = 3;
 	this.toDelete = false;
-
+	
 	this.show = function(){
-		fill('green');
+		fill('white');
 		circle(this.x,this.y,this.r);
 	}
 	this.move = function(){
