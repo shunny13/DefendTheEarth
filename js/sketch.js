@@ -14,7 +14,8 @@ let pauseBtn;
 var play=true;
 var surcharge = [];
 var surchargedShot = -1;
-var startShooting=Date.now();
+var discharged=0;
+var startDiscount = false;
 //VARIABLE TO UTILISE IN GAME OBJECTS
 var bullets = [];
 var ennemies = [];
@@ -24,12 +25,14 @@ var start = false;
 var basicVolume = 0.1;
 var lvlupcalled = true;
 var playerWasHit = false;
+var beginTimer;
 //VARIABLES FOR THE SMALL SCREEN
 var smallW;
 var smallH;
 var smallX;
 var smallY;
 
+var oneSec = 50; // FPS
 //BUFFERS FOR DIFFERENT FILES sound, img
 function preload(){
 	soundFormats('mp3', 'ogg');
@@ -37,12 +40,14 @@ function preload(){
 	lazerSFX = loadSound('sound/lazer.ogg');
 	crashSFX = loadSound('sound/crash.ogg');
 	lvlupSFX = loadSound('sound/lvlup.ogg');
+	overloadSFX = loadSound('sound/overload.ogg');
 	playBtn = loadImage('img/Button-Play-icon.png');
 	pauseBtn = loadImage('img/Button-Pause-icon.png');
 }
 
 //MAKES THE INITIAL SETUP
 function setup(){
+	frameRate(oneSec);	
 	//THE MAIN CANVAS
 	createCanvas(820,540);
 
@@ -95,6 +100,7 @@ function setup(){
         	}
         }
 	surcharge.reverse();
+	
 }
 
 // THE DRAWING FUNCTION A.K.A GAME ENGINE
@@ -103,7 +109,6 @@ function draw(){
 	fill('black');
 	drawRect("smallRectangle",smallX,smallY,smallW,smallH);
 	if (start){
-	
 		//SCORE AND LEVEL ///////////////////////////////
 		fill('black');
 		drawRect("scores",5,5,90,30);
@@ -112,7 +117,6 @@ function draw(){
 		fill('green');
 		text('Score : '+score.toString(), 10, 15);
 		text('Level : '+(level+1).toString(), 10, 30);
-		noFill();
 		////////////////////////////////////////////////
 
 		//SOUND //////////////////////////////////////////
@@ -173,8 +177,9 @@ function draw(){
 		text('HP : '+player.hp.toString() ,10 ,80);
 		///////////////////////////////////////////
 
+
 		//CREATE AN ENNEMY ///////////////////////	
-		if(counterFrame%100-10 == 0){
+		if(counterFrame%100 == 0){
 			var e = new ennemy(difficulty);
 			ennemies.push(e);
 
@@ -191,12 +196,30 @@ function draw(){
 		noFill();
 		fill('red');
 
-		if(surchargedShot<=-1) surchargedShot = -1;
 		// ADD FUNCTION FOR OVERLOAD 
-		if(surchargedShot ==10) {
-			surchargedShot=-1;
+
+		if( counterFrame%50 == 0 && surchargedShot ==10 && startDiscount){ 
+			discharged = 150;
+			startDiscount = false;
+			overloadSFX.setVolume(basicVolume);
+			overloadSFX.play();	
 		}
-		for (var i=0 ; i<=surchargedShot;i++){
+		if(discharged >0) { 
+			shootAllow = false;
+			discharged--;
+			if(discharged == 0) surchargedShot = 5;
+		}
+		if(surchargedShot >10) surchargedShot = 10;
+		if(counterFrame %50 ==0 && discharged==0 && surchargedShot<10 ) {
+			shootAllow = true;
+			surchargedShot--;
+			startDiscount = true;
+		}
+		
+
+		if(surchargedShot<0) surchargedShot = 0;
+
+		for (var i=0 ; i<surchargedShot;i++){
 			var sur = surcharge[i];
 			rect(sur[0],sur[1],sur[2],sur[3]);
 		}
@@ -205,14 +228,16 @@ function draw(){
 
 		//RENDER THE ENNEMIES ///////////////////////
 		for(var e=ennemies.length-1;e>=0;e--){
-			ennemies[e].show();
-			ennemies[e].move();
+			s = ennemies[e];
+			s.show();
+			s.move();
 		}
 		/////////////////////////////////////////////
 		//RENDER THE BULLETS////////////////////////
 		for(var i=bullets.length-1;i>=0;i--){
-			bullets[i].show();
-			bullets[i].move();
+			b = bullets[i];
+			b.show();
+			b.move();
 		}
 		/////////////////////////////////////////////
 		//CHECKING FOR COLLISION BULLET ENNEMY //////
@@ -230,17 +255,19 @@ function draw(){
 		/////////////////////////////////////////////
 		//CHECKING IF THE ENNEMY WENT PAST THE PLAYER ///
 		 for(var e=0;e<ennemies.length;e++){
-			if(ennemies[e].y-ennemies[e].r>=smallH+smallY){
+			 s = ennemies[e];
+			if(s.y-s.r>=smallH+smallY){
 				playerWasHit = true;
-				ennemies[e].dead();
+				s.dead();
 			}
 			
-			if (ennemies[e].toDelete)  ennemies.splice(e,1);
+			if (s.toDelete)  ennemies.splice(e,1);
 		}	
 		/////////////////////////////////////////////
 		//DELETING BULLETS IF THEY GO OFF THE SCREEN////
 		for(var i=bullets.length-1 ; i>=0 ; i--){
-			if (bullets[i].toDelete || bullets[i].y < 30 || bullets[i].x<smallX || bullets[i].x>smallW+smallX) 
+			b = bullets[i];
+			if (b.toDelete || b.y < 30 || b.x<smallX || b.x>smallW+smallX) 
 			{ 
 				bullets.splice(i,1); 
 			}
@@ -268,9 +295,19 @@ function draw(){
 		alert ("GAME OVER. Score : "+score.toString() +" Level : "+(level+1).toString());
 		location.reload();
 	}
+
 }
 
 /////////////////////// END OF DRAW //////////////////////
+
+//////////CHRONOS NOT WORKING /////////
+var startChrono = function(temps){
+	a = Date.now();
+	while( a - temps < temps*1000){
+		a = Date.now();
+	}
+	return true;
+}
 
 // THE WELCOME SCREEN ////////////////////////////////////////////
 var startScreen = function(){
@@ -333,8 +370,7 @@ function mouvement(){
 
 // LISTENS TO ALL THE KEY PRESSED AND ACTIVATES DIFFERENT EVENTS ///////
 function keyPressed(){
-	if(key == ' ' && shootAllow){
-		startShooting = Date.now();
+	if(key == ' ' && shootAllow ){
 		surchargedShot++;
 		lazerSFX.play();
 		var b = new bullet(player.x,player.y-15,0,-5);
