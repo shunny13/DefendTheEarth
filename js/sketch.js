@@ -25,24 +25,41 @@ var start = false;
 var basicVolume = 0.1;
 var lvlupcalled = true;
 var playerWasHit = false;
-var beginTimer;
 //VARIABLES FOR THE SMALL SCREEN
 var smallW;
 var smallH;
 var smallX;
 var smallY;
 
+// SOUND OBJECT
+var playList = {
+	mySoundSFX : 'sound/main.ogg',
+	lazerSFX :'sound/lazer.ogg',
+	crashSFX :'sound/crash.ogg',
+	lvlupSFX : 'sound/lvlup.ogg',
+	overloadSFX : 'sound/overload.ogg'
+};
+
+// IMAGES OBJECT
+var imgList = {
+	playBtn : 'img/Button-Play-icon.png',
+	pauseBtn : 'img/Button-Pause-icon.png'
+};
+
 var oneSec = 50; // FPS
 //BUFFERS FOR DIFFERENT FILES sound, img
 function preload(){
+	// LOADING THE SOUNDS
 	soundFormats('mp3', 'ogg');
-	mySoundSFX = loadSound('sound/main.ogg');
-	lazerSFX = loadSound('sound/lazer.ogg');
-	crashSFX = loadSound('sound/crash.ogg');
-	lvlupSFX = loadSound('sound/lvlup.ogg');
-	overloadSFX = loadSound('sound/overload.ogg');
-	playBtn = loadImage('img/Button-Play-icon.png');
-	pauseBtn = loadImage('img/Button-Pause-icon.png');
+	mySoundSFX = loadSound(playList.mySoundSFX); 
+	lazerSFX =  loadSound(playList.lazerSFX); 
+	crashSFX = loadSound(playList.crashSFX); 
+	lvlupSFX = loadSound(playList.lvlupSFX); 
+	overloadSFX = loadSound(playList.overloadSFX); 
+
+	//LOADING THE IMAGES
+	playBtn = loadImage(imgList.playBtn);
+	pauseBtn = loadImage(imgList.pauseBtn);
 }
 
 //MAKES THE INITIAL SETUP
@@ -80,26 +97,8 @@ function setup(){
 		xf:65,
 		yf:225
 	};
-	if(surcharge.length  == 0){
-		sur = rectangleObjects['overload'];
-        	for(var i = sur.yd;i< sur.yf;i+=20){
-        		var left = true;
-        		for(var l=0;l<=1;l++){
-        			var toPush=[];
-        			if(left){
-        				toPush.push(sur.xd);
-        			}else{
-        				toPush.push( (sur.xf-sur.xd)/2 + sur.xd);
-        			}
-        			left = !left;
-        			toPush.push(i);
-        			toPush.push(15);
-        			toPush.push(20);
-        			surcharge.push(toPush);
-        		}
-        	}
-        }
-	surcharge.reverse();
+	//CREATE THE TABLE NECESSARY TO CONTRUCT THE SURCHARGE BAR
+	createSurchargeBar();	
 	
 }
 
@@ -109,60 +108,36 @@ function draw(){
 	if (start){
 		//RENDER SCORE AND LEVEL ///////////////////////////////
 		scoreAndLevel();
-
 		//RENDER SOUND //////////////////////////////////////////
-		sound();
+		soundRender();
 		///////////////////////////////////////////////////
-		
 		//PLAY AND PAUSE THE GAME//////////////////////////////////////////
 		playAndPause();
 		//////////////////////////////////////////////
-
 		// LEVEL UP /////////////////////////////////
 		levelUP();
 		//////////////////////////////////////////////
-		
 		//PLAYER RENDER/////////////////////////////
 		playerRender();
 		////////////////////////////////////////////
-
 		//RENDER THE HP ///////////////////////////
 		hpRender();
 		///////////////////////////////////////////
-
-
 		//CREATE AN ENNEMY ///////////////////////	
 		createEnnemy();
 		////////////////////////////////////////////
 		// CREATE AND RENDER THE OVERCHARGE BAR /////////
 		drawOverchargeBar();
 		// ADD FUNCTION FOR OVERLOAD 
-
-		if( counterFrame% oneSec == 0 && surchargedShot ==10 && startDiscount){ 
-			discharged = 150;
-			startDiscount = false;
-			overloadSFX.setVolume(basicVolume);
-			overloadSFX.play();	
-		}
-		if(discharged >0 && play) { 
-			shootAllow = false;
-			discharged--;
-			if(discharged == 0) surchargedShot = 5;
-		}
+		whenIsOverload();
 		if(surchargedShot >10) surchargedShot = 10;
-		if(counterFrame % oneSec==0 && discharged==0 && surchargedShot<10  && play) {
-			shootAllow = true;
-			surchargedShot--;
-			startDiscount = true;
-		}
-		
 
+		// AUTOMATICALY DISCHARGING IF THE PLAYER IS NOT OVERLOADED
+		autoDischarge();
 		if(surchargedShot<0) surchargedShot = 0;
-
-		for (var i=0 ; i<surchargedShot;i++){
-			var sur = surcharge[i];
-			rect(sur[0],sur[1],sur[2],sur[3]);
-		}
+		
+		// RENDER THE LITTLE RED BLOCKS
+		renderOverloadSquares();
 		
 		// /////////////////////////////////////////
 
@@ -173,40 +148,14 @@ function draw(){
 		renderBullets();
 		/////////////////////////////////////////////
 		//CHECKING FOR COLLISION BULLET ENNEMY //////
-		for(var i=0;i<bullets.length;i++){
-			for(var e =0;e<ennemies.length;e++){
-				if(bullets[i].hits(ennemies[e])){
-					crashSFX.play();
-					bullets[i].dead();
-					ennemies[e].dead();
-					score+=100;
-				}
-			}
-		}
-
+		checkCollision();
 		/////////////////////////////////////////////
 		//CHECKING IF THE ENNEMY WENT PAST THE PLAYER ///
-		 for(var e=0;e<ennemies.length;e++){
-			 s = ennemies[e];
-			if(s.y-s.r>=smallH+smallY){
-				playerWasHit = true;
-				s.dead();
-			}
-			
-			if (s.toDelete)  ennemies.splice(e,1);
-		}	
+		didEnnemyPastScreen();
 		/////////////////////////////////////////////
 		//DELETING BULLETS IF THEY GO OFF THE SCREEN////
-		for(var i=bullets.length-1 ; i>=0 ; i--){
-			b = bullets[i];
-			if (b.toDelete || b.y < 30 || b.x<smallX || b.x>smallW+smallX) 
-			{ 
-				bullets.splice(i,1); 
-			}
-		}
-
+		didBulletsPastScreen();
 		/////////////////////////////////////////////
-		
 		// INCREMENTING THE COUNTER OF FRAMES
 		counterFrame ++;
 		/////////////////// END OF if(start) /////////////////////////
@@ -214,27 +163,99 @@ function draw(){
 	else {
 		startScreen();
 	}
-	
 	// EVENTS IF PLAYER GETS HIT /////////////////////
+	isPlayerHit();
+	/////////////////////////////////////////////
+	// EVENT IF THE PLAYER HAS NO MORE LIFE POINTS /////////////////
+	isPlayerDead();
+
+}
+/////////////////////// END OF DRAW //////////////////////
+
+var isPlayerHit = function(){
 	if(playerWasHit) {
 		player.hp--;
 		playerWasHit = false;
 	}
-	/////////////////////////////////////////////
+}
 	
-	// EVENT IF THE PLAYER HAS NO MORE LIFE POINTS /////////////////
+
+// Checks if the player lost all its HP and starts an event 
+var isPlayerDead= function(){
 	if(player.hp == 0){
 		alert ("GAME OVER. Score : "+score.toString() +" Level : "+(level+1).toString());
 		location.reload();
 	}
-
 }
 
-/////////////////////// END OF DRAW //////////////////////
+// DESTROYS BULLETS IF IT GETS OUT OF THE SCREEN
+var didBulletsPastScreen = function(){
+	for(var i=bullets.length-1 ; i>=0 ; i--){
+		b = bullets[i];
+		if (b.toDelete || b.y < 30 || b.x<smallX || b.x>smallW+smallX) 
+		{ 
+			bullets.splice(i,1); 
+		}
+	}
+}
 
+// DESTORYS ENNEMY IF IT PASSES OUT OF THE SCREEN
+var didEnnemyPastScreen = function(){
+	for(var e=0;e<ennemies.length;e++){
+		s = ennemies[e];
+		if(s.y-s.r>=smallH+smallY){
+		playerWasHit = true;
+			s.dead();
+		}
+		
+		if (s.toDelete)  ennemies.splice(e,1);
+	}	
+}
+
+// CHECK COLLISION BETWEEN BULLET AND ENNEMY
+var checkCollision = function(){
+	for(var i=0;i<bullets.length;i++){
+		for(var e =0;e<ennemies.length;e++){
+			if(bullets[i].hits(ennemies[e])){
+				crashSFX.play();
+				bullets[i].dead();
+				ennemies[e].dead();
+				score+=100;
+			}
+		}
+	}
+}
+// RENDER OVERLOAD SQUARES
+var renderOverloadSquares = function(){
+	for (var i=0 ; i<surchargedShot;i++){
+		var sur = surcharge[i];
+		rect(sur[0],sur[1],sur[2],sur[3]);
+	}
+}
+// THE AUTOMATICAL DISCHARGE FUNCTION
+var autoDischarge = function(){
+	if(counterFrame % oneSec==0 && discharged==0 && surchargedShot<10  && play) {
+		shootAllow = true;
+		surchargedShot--;
+		startDiscount = true;
+	}
+}
+/// WHAT TO DO IF PLAYER HITS OVERLOAD STATUS
+var whenIsOverload = function(){
+	if( counterFrame% oneSec == 0 && surchargedShot ==10 && startDiscount){ 
+		discharged = 150;
+		startDiscount = false;
+		overloadSFX.setVolume(basicVolume);
+		overloadSFX.play();	
+	}
+	if(discharged >0 && play) { 
+		shootAllow = false;
+		discharged--;
+		if(discharged == 0) surchargedShot = 5;
+	}
+}
 
 //Render bullets
-
 var renderBullets = function(){
 	for(var i=bullets.length-1;i>=0;i--){
 		b = bullets[i];
@@ -341,7 +362,7 @@ var playAndPause = function(){
 		//////////////////////////////////////////////
 
 //RENDER SOUND ///
-var sound = function(){
+var soundRender= function(){
 	fill('black');
 	drawRect("sound",715,10,95,15);
 	fill('green');
@@ -457,6 +478,30 @@ function keyPressed(){
 	}
 }
 //////////////////////////////////////////////
+
+//FUNCTION NCESSARY TO INITIALISE A TABLE IN ORDER TO CONSTRUCT THE SURCHARGE
+var createSurchargeBar = function(){
+	if(surcharge.length  == 0){
+		sur = rectangleObjects['overload'];
+        	for(var i = sur.yd;i< sur.yf;i+=20){
+        		var left = true;
+        		for(var l=0;l<=1;l++){
+        			var toPush=[];
+        			if(left){
+        				toPush.push(sur.xd);
+        			}else{
+        				toPush.push( (sur.xf-sur.xd)/2 + sur.xd);
+        			}
+        			left = !left;
+        			toPush.push(i);
+        			toPush.push(15);
+        			toPush.push(20);
+        			surcharge.push(toPush);
+        		}
+        	}
+        }
+	surcharge.reverse();
+}
 
 //IF THE MAIN THEME SOUND IS OVER, RESTART IT
 var soundDone = function(){
