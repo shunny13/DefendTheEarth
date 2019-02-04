@@ -105,112 +105,52 @@ function setup(){
 
 // THE DRAWING FUNCTION A.K.A GAME ENGINE
 function draw(){
-	background(150);
-	fill('black');
-	drawRect("smallRectangle",smallX,smallY,smallW,smallH);
+	createScreens();
 	if (start){
-		//SCORE AND LEVEL ///////////////////////////////
-		fill('black');
-		drawRect("scores",5,5,90,30);
-		textSize(10);
-		textStyle(BOLD);
-		fill('green');
-		text('Score : '+score.toString(), 10, 15);
-		text('Level : '+(level+1).toString(), 10, 30);
-		////////////////////////////////////////////////
+		//RENDER SCORE AND LEVEL ///////////////////////////////
+		scoreAndLevel();
 
-		//SOUND //////////////////////////////////////////
-		fill('black');
-		drawRect("sound",715,10,95,15);
-		fill('green');
-		text('SOUND ON/OFF',720 ,20);
-		noFill();
+		//RENDER SOUND //////////////////////////////////////////
+		sound();
 		///////////////////////////////////////////////////
 		
-		//PLAY AND PAUSE//////////////////////////////////////////
-		if(!play){
-			shootAllow = false;
-			image(pauseBtn, 760,40);	
-			player.speed = 0;
-			for(var i=0;i<ennemies.length;i++){
-				ennemies_speed.push(ennemies[i].spd);	
-				ennemies[i].spd =0;
-			}
-		}
-		else{
-			shootAllow = true;
-			image(playBtn, 760,40);	
-			player.speed = playerSpd;
-			if(ennemies_speed.length!=0){
-				for(var i=0;i<ennemies.length;i++){
-					ennemies[i].spd = ennemies_speed[i];
-				}
-				ennemies_speed=[];
-			}
-		}
+		//PLAY AND PAUSE THE GAME//////////////////////////////////////////
+		playAndPause();
 		//////////////////////////////////////////////
 
 		// LEVEL UP /////////////////////////////////
-		if(score%1000==0 && score !=0 ){
-			levelup();
-			level = score /1000;
-			difficulty = level;
-			if(lvlupcalled){
-				lvlupSFX.play();
-				lvlupcalled = false;
-				player.hp++;
-				if(player.hp == 99 ) player.hp = 99;
-			}
-		}else {lvlupcalled = true; }
+		levelUP();
 		//////////////////////////////////////////////
 		
 		//PLAYER RENDER/////////////////////////////
-		mouvement();
-		player.show();
+		playerRender();
 		////////////////////////////////////////////
 
 		//RENDER THE HP ///////////////////////////
-		fill('black');
-		drawRect("playerHP",10,60,75,25);
-		textSize(20);
-		fill('green');
-		text('HP : '+player.hp.toString() ,10 ,80);
+		hpRender();
 		///////////////////////////////////////////
 
 
 		//CREATE AN ENNEMY ///////////////////////	
-		if(counterFrame%100 == 0){
-			var e = new ennemy(difficulty);
-			ennemies.push(e);
-
-		}
+		createEnnemy();
 		////////////////////////////////////////////
 		// CREATE AND RENDER THE OVERCHARGE BAR /////////
-		fill('green');
-		textSize(12);
-		text('OVERLOAD',12,115);	
-		fill('black');
-		strokeWeight(2);
-		stroke(51);
-		rect(35,125,30,100);
-		noFill();
-		fill('red');
-
+		drawOverchargeBar();
 		// ADD FUNCTION FOR OVERLOAD 
 
-		if( counterFrame%50 == 0 && surchargedShot ==10 && startDiscount){ 
+		if( counterFrame% oneSec == 0 && surchargedShot ==10 && startDiscount){ 
 			discharged = 150;
 			startDiscount = false;
 			overloadSFX.setVolume(basicVolume);
 			overloadSFX.play();	
 		}
-		if(discharged >0) { 
+		if(discharged >0 && play) { 
 			shootAllow = false;
 			discharged--;
 			if(discharged == 0) surchargedShot = 5;
 		}
 		if(surchargedShot >10) surchargedShot = 10;
-		if(counterFrame %50 ==0 && discharged==0 && surchargedShot<10 ) {
+		if(counterFrame % oneSec==0 && discharged==0 && surchargedShot<10  && play) {
 			shootAllow = true;
 			surchargedShot--;
 			startDiscount = true;
@@ -227,18 +167,10 @@ function draw(){
 		// /////////////////////////////////////////
 
 		//RENDER THE ENNEMIES ///////////////////////
-		for(var e=ennemies.length-1;e>=0;e--){
-			s = ennemies[e];
-			s.show();
-			s.move();
-		}
+		renderEnnemies();
 		/////////////////////////////////////////////
 		//RENDER THE BULLETS////////////////////////
-		for(var i=bullets.length-1;i>=0;i--){
-			b = bullets[i];
-			b.show();
-			b.move();
-		}
+		renderBullets();
 		/////////////////////////////////////////////
 		//CHECKING FOR COLLISION BULLET ENNEMY //////
 		for(var i=0;i<bullets.length;i++){
@@ -300,15 +232,134 @@ function draw(){
 
 /////////////////////// END OF DRAW //////////////////////
 
-//////////CHRONOS NOT WORKING /////////
-var startChrono = function(temps){
-	a = Date.now();
-	while( a - temps < temps*1000){
-		a = Date.now();
+
+//Render bullets
+
+var renderBullets = function(){
+	for(var i=bullets.length-1;i>=0;i--){
+		b = bullets[i];
+		b.show();
+		b.move();
 	}
-	return true;
 }
 
+// Render the ennemies
+var renderEnnemies = function(){
+	for(var e=ennemies.length-1;e>=0;e--){
+		s = ennemies[e];
+		s.show();
+		s.move();
+	}
+}
+
+// draws the overcharge
+
+var drawOverchargeBar = function(){
+	fill('green');
+	textSize(12);
+	text('OVERLOAD',12,115);	
+	fill('black');
+	strokeWeight(2);
+	stroke(51);
+	rect(35,125,30,100);
+	noFill();
+	fill('red');
+}
+//Create Both screens //
+
+var createScreens = function(){
+	background(150);
+	fill('black');
+	drawRect("smallRectangle",smallX,smallY,smallW,smallH);
+}
+
+// CREATE THE ENNEMIES //
+
+var createEnnemy = function(){
+	//Basic ennemy
+	if(counterFrame%100 == 0){
+		var e = new ennemy(difficulty,'red');
+		ennemies.push(e);
+	}
+}
+
+// RENDER THE HP ///
+
+var hpRender = function(){
+	fill('black');
+	drawRect("playerHP",10,60,75,25);
+	textSize(20);
+	fill('green');
+	text('HP : '+player.hp.toString() ,10 ,80);
+}
+
+/// MAKE ACTIONS OF MOUVEMENT AND IMAGE OF PLAYER ///
+var playerRender = function(){
+	mouvement();
+	player.show();
+}
+
+/// HOW TO KNOW WHEN TO LEVEL UP
+//
+var levelUP = function(){
+	if(score%1000==0 && score !=0 ){
+		levelup();
+		level = score /1000;
+		difficulty = level;
+		if(lvlupcalled){
+			lvlupSFX.play();
+			lvlupcalled = false;
+			player.hp++;
+			if(player.hp == 99 ) player.hp = 99;
+		}
+	}else {lvlupcalled = true; }
+}
+
+///WHEN YOU PRESS PAUSE (p) WHAT HAPPENS ///////////////
+var playAndPause = function(){
+	if(!play){
+		shootAllow = false;
+		image(pauseBtn, 760,40);	
+		player.speed = 0;
+		for(var i=0;i<ennemies.length;i++){
+			ennemies_speed.push(ennemies[i].spd);	
+			ennemies[i].spd =0;
+		}
+	}
+	else{
+		shootAllow = true;
+		image(playBtn, 760,40);	
+		player.speed = playerSpd;
+		if(ennemies_speed.length!=0){
+			for(var i=0;i<ennemies.length;i++){
+				ennemies[i].spd = ennemies_speed[i];
+			}
+			ennemies_speed=[];
+		}
+	}
+}
+		//////////////////////////////////////////////
+
+//RENDER SOUND ///
+var sound = function(){
+	fill('black');
+	drawRect("sound",715,10,95,15);
+	fill('green');
+	text('SOUND ON/OFF',720 ,20);
+	noFill();
+}
+
+// RENDER SCORE AND LEVEL ///
+var scoreAndLevel = function(){
+	fill('black');
+	drawRect("scores",5,5,90,30);
+	textSize(10);
+	textStyle(BOLD);
+	fill('green');
+	text('Score : '+score.toString(), 10, 15);
+	text('Level : '+(level+1).toString(), 10, 30);
+}
+//
 // THE WELCOME SCREEN ////////////////////////////////////////////
 var startScreen = function(){
 	fill('green');
