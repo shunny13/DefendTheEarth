@@ -43,7 +43,10 @@ var playList = {
 // IMAGES OBJECT
 var imgList = {
 	playBtn : 'img/Button-Play-icon.png',
-	pauseBtn : 'img/Button-Pause-icon.png'
+	pauseBtn : 'img/Button-Pause-icon.png',
+	spritePlayer :'img/sprite-player.png',
+	asteroid1 :'img/sprite-asteroid1.png',
+	asteroid2 :'img/sprite-asteroid2.png'
 };
 
 var oneSec = 50; // FPS
@@ -60,6 +63,9 @@ function preload(){
 	//LOADING THE IMAGES
 	playBtn = loadImage(imgList.playBtn);
 	pauseBtn = loadImage(imgList.pauseBtn);
+	spritePlayer = loadImage(imgList.spritePlayer);
+	asteroid1 = loadImage(imgList.asteroid1);
+	asteroid2 = loadImage(imgList.asteroid2);
 }
 
 //MAKES THE INITIAL SETUP
@@ -81,7 +87,8 @@ function setup(){
 		playerSpd,
 		smallX+playerSize,
 		smallX+smallW-playerSize,
-		playerSize 
+		playerSize,
+		spritePlayer
 	);
 	//INITIALIZING THE SCORE
 	score = 0;
@@ -172,6 +179,18 @@ function draw(){
 }
 /////////////////////// END OF DRAW //////////////////////
 
+//THE ANIMATION
+var Animation = function(frame_set,delay){
+	this.count =0;
+	this.delay = delay;
+	this.frame = 0;
+	this.frame_index = 0;
+	this.frame_set = frame_set;
+};
+
+
+
+
 //IF THE MAIN THEME SOUND IS OVER, RESTART IT
 var soundDone = function(){
         mySoundSFX.playMode('restart');
@@ -260,7 +279,7 @@ function keyPressed(){
         if(key == ' ' && shootAllow ){
                 surchargedShot++;
                 lazerSFX.play();
-                var b = new bullet(player.x,player.y-15,0,-5);
+                var b = new bullet(player.x+3,player.y-35,0,-5);
                 bullets.push(b);
                 /* if(level>=1){
                         var b1 = new bullet(player.x,player.y-15,-1,-4);

@@ -2,7 +2,6 @@ var isPlayerHit = function(){
         if(playerWasHit) {
                 player.hp--;
                 playerWasHit = false;
-	console.log(bullets.length,ennemies.length);
         }
 }
 
