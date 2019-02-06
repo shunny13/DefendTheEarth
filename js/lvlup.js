@@ -7,7 +7,6 @@ var levelUP = function(){
                 difficulty = level;
                 if(lvlupcalled){
                         lvlupSFX.play();
-			allowToUlt=true;
                         lvlupcalled = false;
                         player.hp++;
                         if(player.hp == 99 ) player.hp = 99;

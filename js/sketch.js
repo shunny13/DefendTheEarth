@@ -12,8 +12,7 @@ var rectangleObjects = [];
 let playBtn;
 let pauseBtn;
 var play=true;
-var surcharge = [];
-var surchargedShot = -1;
+var surchargedShot =1;
 var discharged=0;
 var startDiscount = false;
 //VARIABLE TO UTILISE IN GAME OBJECTS
@@ -33,8 +32,8 @@ var smallY;
 
 //ULT
 var ulti = [];
-var allowToUlt=false;
-
+var chargesToUlt=0;
+var counterUlts=0;
 // SOUND OBJECT
 var playList = {
 	mySoundSFX : 'sound/main.ogg',
@@ -103,14 +102,13 @@ function setup(){
 	lazerSFX.setVolume(basicVolume);
 	crashSFX.setVolume(basicVolume);
 	lvlupSFX.setVolume(basicVolume);
-	rectangleObjects['overload'] = {
-		xd:35,
-		yd:125,
-		xf:65,
-		yf:225
+	rectangleObjects['start'] = {
+		xd:(smallX+smallW)/2,
+		yd:(smallY+smallH)/2-40,
+		xf:(smallX+smallW)/2+100,
+		yf:( (smallY+smallH)/2-40 ) +50
 	};
 	//CREATE THE TABLE NECESSARY TO CONTRUCT THE SURCHARGE BAR
-	createSurchargeBar();	
 	
 }
 
@@ -118,9 +116,10 @@ function setup(){
 function draw(){
 	createScreens();
 	if (start){
+		
 		//RENDER SCORE AND LEVEL ///////////////////////////////
 		scoreAndLevel();
-		//RENDER SOUND //////////////////////////////////////////
+		///RENDER SOUND //////////////////////////////////////////
 		mySoundSFX.setVolume(basicVolume);
 		soundRender();
 		///////////////////////////////////////////////////
@@ -137,6 +136,11 @@ function draw(){
 		//RENDER THE HP ///////////////////////////
 		hpRender();
 		///////////////////////////////////////////
+		//DRAW THE OVERLOAD BAR
+		//createSurchargeBar();	
+		////////////
+		//RENDER THE ULT
+		ultRender();
 		//CREATE AN ENNEMY ///////////////////////	
 		createEnnemy();
 		////////////////////////////////////////////
@@ -150,10 +154,6 @@ function draw(){
 		autoDischarge();
 		if(surchargedShot<0) surchargedShot = 0;
 		
-		// RENDER THE LITTLE RED BLOCKS
-		renderOverloadSquares();
-		
-		// /////////////////////////////////////////
 
 		//RENDER THE ENNEMIES ///////////////////////
 		renderEnnemies();
@@ -174,6 +174,11 @@ function draw(){
 		/////////////////////////////////////////////
 		// INCREMENTING THE COUNTER OF FRAMES
 		counterFrame ++;
+		//HOW MANY CHARGES TO ULT
+		if(chargesToUlt == 1000){
+			counterUlts++;
+			chargesToUlt = 0;
+		}
 		/////////////////// END OF if(start) /////////////////////////
 		
 	}
@@ -237,28 +242,23 @@ function mouvement(){
 /////////////////////////////////////////////
 // ALLOWS TO EASLY DRAW A RECTANGLE AND ADD ITS PRORIETIES TO A LIT
 // IN ORDER TO MAKE CLICKABLE EVENTS ON THEM
-var drawRect = function(id,x,y,width,height){
-        rectangle = {
-                xd : x,
-                yd : y,
-                xf : x+width,
-                yf : y+height,
-        }
+var drawRect = function(x,y,width,height){
         strokeWeight(2);
         stroke(51);
         rect(x,y,width,height);
         noStroke();
-        rectangleObjects[id] =  rectangle;
 }
 //////////////////////////////////////////////
 
 	
 // HELPS TO CHECK IF THE MOUSE CLICKED ON AN IMPORTANT OPTION /////
 var isRectClicked = function(name){
-        r = rectangleObjects[name];
-        mx = mouseX;
-        my = mouseY;
-        return (mx> r.xd &&  mx < r.xf && my>r.yd && my<r.yf);
+	if(rectangleObjects[name]){
+        	r = rectangleObjects[name];
+        	mx = mouseX;
+		my = mouseY;
+		return (mx> r.xd &&  mx < r.xf && my>r.yd && my<r.yf);
+	}
 }
 
 /////////////////////////////////////////////
@@ -287,34 +287,17 @@ function keyPressed(){
                 lazerSFX.play();
                 var b = new bullet(player.x+3,player.y-35,0,-5);
                 bullets.push(b);
-                /* if(level>=1){
-                        var b1 = new bullet(player.x,player.y-15,-1,-4);
-                        bullets.push(b1);
-                }
-                if(level>=2){
-                        var b2 = new bullet(player.x,player.y-15,1,-4);
-                        bullets.push(b2);
-                }
-                if(level>=3){
-                        var b3 = new bullet(player.x,player.y,-3,-4);
-                        bullets.push(b3);
-                }
-                if(level>=4){
-                        var b4 = new bullet(player.x,player.y,3,-4);
-                        bullets.push(b4);
-                }*/
-
         }
-        if(key =='p') {
+	else if(key =='p') {
                 play= !play;
         }
-        if(key =='m'){
+	else if(key =='m'){
                 if(basicVolume > 0 ){
                         basicVolume = 0;
                 }
 		else basicVolume=0.1;
         }
-	if(key='r' && allowToUlt){
+	else if(key=='r' && counterUlts > 0){
 		var l = new laser
 	      	(
                 	smallX,
@@ -324,8 +307,10 @@ function keyPressed(){
 			-3
         	);
 		ulti.push(l);
-		allowToUlt=false;
+		counterUlts--;
 
+
+		
 	}
 }
 //////////////////////////////////////////////
@@ -357,13 +342,6 @@ var playAndPause = function(){
                 //////////////////////////////////////////////
 
 //RENDER SOUND ///
-var soundRender= function(){
-        fill('black');
-        drawRect("sound",715,10,95,15);
-        fill('green');
-        text('SOUND ON/OFF',720 ,20);
-        noFill();
-}
 
 var renderLaser = function(){
 	for(var u=0;u<ulti.length;u++){

@@ -25,8 +25,8 @@ var renderEnnemies = function(){
 //RENDER SOUND ///
 var soundRender= function(){
         fill('black');
-        drawRect("sound",715,10,95,15);
-        fill('green');
+        drawRect(715,10,95,15);
+	fill('green');
         text('SOUND ON/OFF',720 ,20);
         noFill();
 }
@@ -34,18 +34,29 @@ var soundRender= function(){
 //RENDER HP//
 var hpRender = function(){
         fill('black');
-        drawRect("playerHP",10,60,75,25);
-        textSize(20);
+        drawRect(10,60,75,25);
+	textSize(20);
         fill('green');
         text('HP : '+player.hp.toString() ,10 ,80);
 }
 
 // POPS UP THE LEVEL UP ////////////////////
 var levelup = function(){
-        textSize(50);0
+        textSize(50);
         textStyle(BOLD);
         fill('green');
         text('LEVEL UP', width/2-120, height/2-50);
+}
+
+var ultRender = function(){
+	fill('black');
+	drawRect(10, height/2,80,25);
+	rect(10,height/2,80,25);
+	fill('lightblue');
+	rect(10,height/2,8*chargesToUlt/100,25);
+	textSize(15);
+	fill('green');
+	text("ULTS x"+counterUlts.toString(),12,height/2+20);
 }
 //////////////////////////////////////////////
 
@@ -54,8 +65,9 @@ var levelup = function(){
 // RENDER SCORE AND LEVEL ///
 var scoreAndLevel = function(){
         fill('black');
-        drawRect("scores",5,5,90,30);
-        textSize(10);
+        drawRect(5,5,90,30);
+        rect(5,5,90,30);
+	textSize(10);
         textStyle(BOLD);
         fill('green');
         text('Score : '+score.toString(), 10, 15);
@@ -63,18 +75,23 @@ var scoreAndLevel = function(){
 }
 //
 // draws the overcharge
-
 var drawOverchargeBar = function(){
         fill('green');
         textSize(12);
         text('OVERLOAD',12,115);
+        var ol = {
+		xd:35,
+		yd:125,
+		xf:65,
+		yf:225
+	};
         fill('black');
-        strokeWeight(2);
-        stroke(51);
-        rect(35,125,30,100);
-        noFill();
+	drawRect(ol.xd, ol.yd, ol.xf-ol.xd, ol.yf-ol.yd);
         fill('red');
+        rect( ol.xd ,ol.yf-(surchargedShot*10), ol.xf-ol.xd ,surchargedShot*10 );
+
 }
+
 
 // DESTROYS BULLETS IF IT GETS OUT OF THE SCREEN
 var didBulletsPastScreen = function(){
@@ -103,13 +120,14 @@ var didEnnemyPastScreen = function(){
 }
 
 //IF ULT IS OVER
-didLaserPastScreen = function(){
-	for(var l=0;l<ulti.length;l++){
-		s = ulti[l];
-		if(s.y<=smallY) s.dead();
-
-		if(s.toDelete){
-			ulti.splice(s,1);
-		}
-	}
+var didLaserPastScreen = function(){
+        for(var i=ulti.length-1 ; i>=0 ; i--){
+                s = ulti[i];
+                if (s.toDelete || s.y1 < smallY)
+                {
+                        ulti.splice(i,1);
+			
+                }
+        }
 }
+

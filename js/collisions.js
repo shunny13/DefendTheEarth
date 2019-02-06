@@ -7,6 +7,7 @@ var checkCollision = function(){
                                 bullets[i].dead();
                                 ennemies[e].dead();
                                 score+=100;
+				chargesToUlt+=100;
                         }
                 }
         }
@@ -17,6 +18,7 @@ var checkCollision = function(){
 				crashSFX.play();
 				ennemies[i].dead();
 				score+=100;
+				chargesToUlt+=100;
 			}
 		}
 	}

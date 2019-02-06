@@ -1,7 +1,7 @@
 // THE WELCOME SCREEN ////////////////////////////////////////////
 var startScreen = function(){
         fill('green');
-        drawRect("start",(smallX+smallW)/2,(smallY+smallH)/2-40,100,50);
+        drawRect( (smallX+smallW)/2,(smallY+smallH)/2-40,100,50);
         textSize(20);
         fill('red');
         textStyle(BOLD);
@@ -25,6 +25,6 @@ var startScreen = function(){
 var createScreens = function(){
         background(150);
         fill('black');
-        drawRect("smallRectangle",smallX,smallY,smallW,smallH);
+        drawRect(smallX,smallY,smallW,smallH);
 }
 

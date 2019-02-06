@@ -25,6 +25,7 @@ function laser(x1,y1,x2,y2,velocity){
 	this.show = function(){
 		stroke(255);
 		line(this.x1,this.y1,this.x2,this.y2);
+		noStroke();
 	}
 
 	this.move = function(){
