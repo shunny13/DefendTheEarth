@@ -11,11 +11,13 @@ The more higher you level is, the faster will be the asteroids.
  - Add crates that player can shoot in order to get short period bonuses.
  - Add css
  - Add a leaderboard with a database (probably progrsql)
- - Add ultimate power
  - Add design layer for game
  - Add new ennemies
  - Add stats bar
  - Add upgrade the ship
+ - Tutorial Screen
+ - Game OVer Screen
+
 #Bugs
 	
 
