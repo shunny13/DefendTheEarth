@@ -10,5 +10,16 @@ var checkCollision = function(){
                         }
                 }
         }
+
+	for(var u=0;u<ulti.length;u++){
+		for(var i =ennemies.length-1;i>=0;i--){
+			if (ulti[u].hits(ennemies[i])){
+				crashSFX.play();
+				ennemies[i].dead();
+				score+=100;
+			}
+		}
+	}
+
 }
 

@@ -31,6 +31,10 @@ var smallH;
 var smallX;
 var smallY;
 
+//ULT
+var ulti = [];
+var allowToUlt=false;
+
 // SOUND OBJECT
 var playList = {
 	mySoundSFX : 'sound/main.ogg',
@@ -90,6 +94,7 @@ function setup(){
 		playerSize,
 		spritePlayer
 	);
+
 	//INITIALIZING THE SCORE
 	score = 0;
 	//INITIALIZING THE SOUNDS iN THE GAME
@@ -116,6 +121,7 @@ function draw(){
 		//RENDER SCORE AND LEVEL ///////////////////////////////
 		scoreAndLevel();
 		//RENDER SOUND //////////////////////////////////////////
+		mySoundSFX.setVolume(basicVolume);
 		soundRender();
 		///////////////////////////////////////////////////
 		//PLAY AND PAUSE THE GAME//////////////////////////////////////////
@@ -126,6 +132,7 @@ function draw(){
 		//////////////////////////////////////////////
 		//PLAYER RENDER/////////////////////////////
 		renderPlayer();
+		renderLaser();
 		////////////////////////////////////////////
 		//RENDER THE HP ///////////////////////////
 		hpRender();
@@ -162,10 +169,13 @@ function draw(){
 		/////////////////////////////////////////////
 		//DELETING BULLETS IF THEY GO OFF THE SCREEN////
 		didBulletsPastScreen();
+		///DELETE LASER THAT PASSES SCREEN
+		didLaserPastScreen();
 		/////////////////////////////////////////////
 		// INCREMENTING THE COUNTER OF FRAMES
 		counterFrame ++;
 		/////////////////// END OF if(start) /////////////////////////
+		
 	}
 	else {
 		startScreen();
@@ -207,10 +217,8 @@ function mouseClicked(){
         if(isRectClicked('sound')){
                 if(basicVolume > 0 ){
                         basicVolume = 0;
-                        mySoundSFX.setVolume(basicVolume);
                 }else{
                         basicVolume = 0.1;
-                        mySoundSFX.setVolume(basicVolume);
                 }
         }
 }
@@ -264,10 +272,8 @@ function mouseClicked(){
         if(isRectClicked('sound')){
                 if(basicVolume > 0 ){
                         basicVolume = 0;
-                        mySoundSFX.setVolume(basicVolume);
                 }else{
                         basicVolume = 0.1;
-                        mySoundSFX.setVolume(basicVolume);
                 }
         }
 }
@@ -306,7 +312,21 @@ function keyPressed(){
                 if(basicVolume > 0 ){
                         basicVolume = 0;
                 }
+		else basicVolume=0.1;
         }
+	if(key='r' && allowToUlt){
+		var l = new laser
+	      	(
+                	smallX,
+                	smallH,
+                	smallW+smallX,
+                	smallH,
+			-3
+        	);
+		ulti.push(l);
+		allowToUlt=false;
+
+	}
 }
 //////////////////////////////////////////////
 
@@ -336,3 +356,18 @@ var playAndPause = function(){
 }
                 //////////////////////////////////////////////
 
+//RENDER SOUND ///
+var soundRender= function(){
+        fill('black');
+        drawRect("sound",715,10,95,15);
+        fill('green');
+        text('SOUND ON/OFF',720 ,20);
+        noFill();
+}
+
+var renderLaser = function(){
+	for(var u=0;u<ulti.length;u++){
+		ulti[u].move();
+        	ulti[u].show();
+	}
+}

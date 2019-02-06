@@ -102,4 +102,14 @@ var didEnnemyPastScreen = function(){
         }
 }
 
+//IF ULT IS OVER
+didLaserPastScreen = function(){
+	for(var l=0;l<ulti.length;l++){
+		s = ulti[l];
+		if(s.y<=smallY) s.dead();
 
+		if(s.toDelete){
+			ulti.splice(s,1);
+		}
+	}
+}
