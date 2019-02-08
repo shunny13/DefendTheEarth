@@ -113,18 +113,18 @@ function setup(){
 	};
 	// xd : x depart, xf : x final (arrivé)
 	rectangleObjects['gameOver'] ={
-		xd : (smallX+smallW)/2+10,
-		yd : (smallY+smallH)/2-25,
-		xf : (smallX+smallW)/2+110,
-		yd : (smallY+smallH)/2,
+		xd:(smallX+smallW)/2,
+                yd:(smallY+smallH)/2-40,
+                xf:(smallX+smallW)/2+100,
+                yf:(smallY+smallH)/2-40+50,
 	};
+	console.log(rectangleObjects['gameOver']);
 }
 
 // THE DRAWING FUNCTION A.K.A GAME ENGINE
 function draw(){
 	createScreens();
 	if (start){
-		
 		//RENDER SCORE AND LEVEL ///////////////////////////////
 		scoreAndLevel();
 		///RENDER SOUND //////////////////////////////////////////
@@ -267,7 +267,7 @@ function mouseClicked(){
 		gameOver = false;
 		mySoundSFX.play();
         }
-	if( gameOver){ 
+	if( gameOver && isRectClicked('gameOver') ){ 
 		initialiseGame();
 		gameOver = false;
 		start = false;

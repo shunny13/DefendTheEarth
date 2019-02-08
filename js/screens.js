@@ -6,24 +6,29 @@ var startScreen = function(){
         fill('red');
         textStyle(BOLD);
         text("START",(smallX+smallW)/2+15,(smallY+smallH)/2-10);
+	textStyle(BOLD);
+        fill('green');
+        textSize(50);
+        text("DEFEND THE EARTH", (smallX+smallW)/2-230,(smallY+smallH)/4,(smallX+smallW)/2+230,(smallY+smallH)/4+50);
+
 }
+
 // GAME OVER SCREEB
 var gameOverScreen = function(){
-        fill('grey');
-        drawRect( (smallX+smallW)/2,(smallY+smallH)/2-40,100,50);
-        textSize(20);
+        textSize(60);
         fill('red');
         textStyle(BOLD);
-        text("GAME OVER",(smallX+smallW)/2+15,(smallY+smallH)/2-10);
-	fill('black');
-	screen = rectangleObjects['gameOver'];
-	drawRect( 
-		screen.xd,
-		screen.yd,
+        text("GAME OVER",(smallX+smallW)/2-150,(smallY+smallH)/2-50);
+	textSize(20);
+        fill('grey');
+        drawRect( 
+		(smallX+smallW)/2,
+		(smallY+smallH)/2-40,
 		100,
-		25
+		50
 	);
-	text("RESTART",(smallX+smallW)/2+20,(smallY+smallH)/2-30);
+	fill('red');
+	text("RESTART",(smallX+smallW)/2,(smallY+smallH)/20+220);
 }
 
 //Create Both screens //
