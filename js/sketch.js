@@ -21,6 +21,8 @@ var ennemies = [];
 var ennemies_speed=[];
 //VARIABLES FOR THE BACKGROUND USE
 var start = false;
+var gameOver = false;
+
 var basicVolume = 0.1;
 var lvlupcalled = true;
 var playerWasHit = false;
@@ -69,6 +71,8 @@ function preload(){
 	spritePlayer = loadImage(imgList.spritePlayer);
 	asteroid1 = loadImage(imgList.asteroid1);
 	asteroid2 = loadImage(imgList.asteroid2);
+
+
 }
 
 //MAKES THE INITIAL SETUP
@@ -84,16 +88,15 @@ function setup(){
 	smallY = (height-smallH)/2;
 	//CREATION OF THE PLAYER	
 	player = new player // X,Y, spd,LimitLeft,LimitRight,Size
-	( 
-		(smallW/2)+smallX ,
-		smallH+30,
-		playerSpd,
-		smallX+playerSize,
-		smallX+smallW-playerSize,
-		playerSize,
-		spritePlayer
-	);
-
+        (
+                (smallW/2)+smallX ,
+                smallH+30,
+                playerSpd,
+                smallX+playerSize,
+                smallX+smallW-playerSize,
+                playerSize,
+                spritePlayer
+        );
 	//INITIALIZING THE SCORE
 	score = 0;
 	//INITIALIZING THE SOUNDS iN THE GAME
@@ -108,8 +111,13 @@ function setup(){
 		xf:(smallX+smallW)/2+100,
 		yf:( (smallY+smallH)/2-40 ) +50
 	};
-	//CREATE THE TABLE NECESSARY TO CONTRUCT THE SURCHARGE BAR
-	
+	// xd : x depart, xf : x final (arrivé)
+	rectangleObjects['gameOver'] ={
+		xd : (smallX+smallW)/2+10,
+		yd : (smallY+smallH)/2-25,
+		xf : (smallX+smallW)/2+110,
+		yd : (smallY+smallH)/2,
+	};
 }
 
 // THE DRAWING FUNCTION A.K.A GAME ENGINE
@@ -182,6 +190,9 @@ function draw(){
 		/////////////////// END OF if(start) /////////////////////////
 		
 	}
+	else if(gameOver){
+		gameOverScreen();
+	}
 	else {
 		startScreen();
 	}
@@ -212,20 +223,6 @@ var soundDone = function(){
         mySoundSFX.setVolume(basicVolume);
         mySoundSFX.play();
 
-}
-//CHECKING IF THE MOUSE CLICKS ON IMPORTANT OPTION, start, sound etc////
-function mouseClicked(){
-        if(!start && isRectClicked('start') ) {
-                        start = true;
-                        mySoundSFX.play();
-        }
-        if(isRectClicked('sound')){
-                if(basicVolume > 0 ){
-                        basicVolume = 0;
-                }else{
-                        basicVolume = 0.1;
-                }
-        }
 }
 // THE MOUVEMENT OF THE PLAYER //////////////
 function mouvement(){
@@ -265,10 +262,17 @@ var isRectClicked = function(name){
 
 //CHECKING IF THE MOUSE CLICKS ON IMPORTANT OPTION, start, sound etc////
 function mouseClicked(){
-        if(!start && isRectClicked('start') ) {
-                        start = true;
-                        mySoundSFX.play();
+        if(!start && !gameOver &&  isRectClicked('start') ) {
+		start = true;
+		gameOver = false;
+		mySoundSFX.play();
         }
+	if( gameOver){ 
+		initialiseGame();
+		gameOver = false;
+		start = false;
+	}
+
         if(isRectClicked('sound')){
                 if(basicVolume > 0 ){
                         basicVolume = 0;
@@ -348,4 +352,19 @@ var renderLaser = function(){
 		ulti[u].move();
         	ulti[u].show();
 	}
+}
+
+var initialiseGame = function(){
+	ennemies = [];
+	bullets = [];
+	
+	score = 0;
+	
+	surchargedShot = 0;
+	discharged = 0;
+	
+	chargesToUlt=0;
+	counterUlts=0;
+	player.recreate();
+	player.hp = 3;
 }

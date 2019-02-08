@@ -16,5 +16,10 @@ function player(x,y,spd,limLeft,limRight,size,sprite){
 		if(this.x>limRight) this.x = limRight-5;
 	}
 
+	this.recreate = function(){
+		this.x = smallW/2+smallX;
+                this.y = smallH+30;
+	}
+
 
 }
