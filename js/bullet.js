@@ -14,9 +14,9 @@ function bullet(x,y,spdx,spdy){
 		this.y+=this.spdy;
 		this.x+=this.spdx;
 	}
-	this.hits = function(ennemy){
-		var d = dist(this.x,this.y,ennemy.x,ennemy.y);
-		if (d<=this.r + ennemy.r){
+	this.hits = function(object){
+		var d = dist(this.x,this.y,object.x,object.y);
+		if (d<=this.r + object.r){
 			return true;
 		}return false;
 	}
