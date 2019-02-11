@@ -1,4 +1,5 @@
 # DefendTheEarth
+_
 
 This is a very basic javascript game.
 It looks a lot like space invaders.
