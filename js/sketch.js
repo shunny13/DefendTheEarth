@@ -17,6 +17,8 @@ var discharged=0;
 var startDiscount = false;
 //VARIABLE TO UTILISE IN GAME OBJECTS
 var bullets = [];
+var bonusboxtab =[];
+var bonusbox_speed=[];
 var ennemies = [];
 var ennemies_speed=[];
 //VARIABLES FOR THE BACKGROUND USE
@@ -31,7 +33,8 @@ var smallW;
 var smallH;
 var smallX;
 var smallY;
-
+//time bonus
+var timespeed = 0;
 //ULT
 var ulti = [];
 var chargesToUlt=0;
@@ -151,6 +154,8 @@ function draw(){
 		ultRender();
 		//CREATE AN ENNEMY ///////////////////////	
 		createEnnemy();
+		//CREATE AN bonusbox ///////////////////////	
+		createbonusbox();
 		////////////////////////////////////////////
 		// CREATE AND RENDER THE OVERCHARGE BAR /////////
 		drawOverchargeBar();
@@ -165,6 +170,8 @@ function draw(){
 
 		//RENDER THE ENNEMIES ///////////////////////
 		renderEnnemies();
+		//RENDER THE ENNEMIES ///////////////////////
+		renderbonusbox();
 		/////////////////////////////////////////////
 		//RENDER THE BULLETS////////////////////////
 		renderBullets();
@@ -174,6 +181,9 @@ function draw(){
 		/////////////////////////////////////////////
 		//CHECKING IF THE ENNEMY WENT PAST THE PLAYER ///
 		didEnnemyPastScreen();
+		/////////////////////////////////////////////
+		//CHECKING IF THE ENNEMY WENT PAST THE PLAYER ///
+		didbonusboxPastScreen();
 		/////////////////////////////////////////////
 		//DELETING BULLETS IF THEY GO OFF THE SCREEN////
 		didBulletsPastScreen();
@@ -196,6 +206,8 @@ function draw(){
 	else {
 		startScreen();
 	}
+	// EVENT IF A BONUS OF SPEED WAS ACTIVATES
+	bonusspeed();
 	// EVENTS IF PLAYER GETS HIT /////////////////////
 	isPlayerHit();
 	/////////////////////////////////////////////
@@ -356,9 +368,11 @@ var renderLaser = function(){
 
 var initialiseGame = function(){
 	ennemies = [];
+	bonusboxtab = [];
 	bullets = [];
 	
 	score = 0;
+	difficulty=1;
 	
 	surchargedShot = 0;
 	discharged = 0;

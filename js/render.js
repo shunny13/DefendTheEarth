@@ -22,6 +22,15 @@ var renderEnnemies = function(){
         }
 }
 
+// Render the bonusbox
+var renderbonusbox = function(){
+        for(var b=bonusboxtab.length-1;b>=0;b--){
+                var s = bonusboxtab[b];
+                s.show();
+                s.move();
+        }
+}
+
 //RENDER SOUND ///
 var soundRender= function(){
         fill('black');
@@ -109,13 +118,27 @@ var didEnnemyPastScreen = function(){
         for(var e=0;e<ennemies.length;e++){
                 s = ennemies[e];
                 if(s.y + s.r>=smallH+smallY){
-                playerWasHit = true;
-                        s.dead();
+					playerWasHit = true;
+                    s.dead();
                 }
 
                 if (s.toDelete) {
-			ennemies.splice(e,1);
-		}
+					ennemies.splice(e,1);
+				}
+        }
+}
+
+// DESTORYS bonusboc IF IT PASSES OUT OF THE SCREEN
+var didbonusboxPastScreen = function(){
+        for(var b=0;b<bonusboxtab.length;b++){
+                s = bonusboxtab[b];
+                if(s.y + s.r>=smallH+smallY){
+                    s.dead();
+                }
+
+                if (s.toDelete) {
+					bonusboxtab.splice(b,1);
+				}
         }
 }
 
