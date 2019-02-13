@@ -3,7 +3,8 @@
 var levelUP = function(){
         if(score%1000==0 && score !=0 ){
                 levelup();
-                level = score /1000;
+                //level = score /1000;
+		level++;
                 difficulty = level;
                 if(lvlupcalled){
                         lvlupSFX.play();

@@ -1,7 +1,7 @@
-function ennemy(difficulty,sprite,diameter){
-	this.x = random(smallX+diameter,smallX+smallW-diameter);
+function ennemy(x,spd,sprite,diameter){
+	this.x = x;
 	this.y = smallY+(diameter/2);
-	this.spd = random(1*difficulty,2*difficulty);
+	this.spd = spd;
 	this.hp = random(1,5);
 	this.r = diameter/2;
 	this.toDelete = false;

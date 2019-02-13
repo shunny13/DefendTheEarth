@@ -6,7 +6,9 @@ var shootAllow = true;
 //VARIABLES FOR HUD
 var score;
 var counterFrame = 0;
-var level =0;
+
+var level =2;
+
 var difficulty = 1;
 var rectangleObjects = [];
 let playBtn;
@@ -21,6 +23,8 @@ var bonusboxtab =[];
 var bonusbox_speed=[];
 var ennemies = [];
 var ennemies_speed=[];
+
+var whichEnnemy=0;
 //VARIABLES FOR THE BACKGROUND USE
 var start = false;
 var gameOver = false;
@@ -67,7 +71,7 @@ function preload(){
 	crashSFX = loadSound(playList.crashSFX); 
 	lvlupSFX = loadSound(playList.lvlupSFX); 
 	overloadSFX = loadSound(playList.overloadSFX); 
-
+	
 	//LOADING THE IMAGES
 	playBtn = loadImage(imgList.playBtn);
 	pauseBtn = loadImage(imgList.pauseBtn);
@@ -83,12 +87,13 @@ function setup(){
 	frameRate(oneSec);	
 	//THE MAIN CANVAS
 	createCanvas(820,540);
-
+	
 	//THE SMALLER SCREEN
 	smallW = 640;
 	smallH = 480;
 	smallX = (width-smallW+20)/2;
 	smallY = (height-smallH)/2;
+	console.log(smallX,smallX+smallW);
 	//CREATION OF THE PLAYER	
 	player = new player // X,Y, spd,LimitLeft,LimitRight,Size
         (
@@ -121,7 +126,6 @@ function setup(){
                 xf:(smallX+smallW)/2+100,
                 yf:(smallY+smallH)/2-40+50,
 	};
-	console.log(rectangleObjects['gameOver']);
 }
 
 // THE DRAWING FUNCTION A.K.A GAME ENGINE
@@ -381,4 +385,7 @@ var initialiseGame = function(){
 	counterUlts=0;
 	player.recreate();
 	player.hp = 3;
+	
+	mySoundSFX.stop();
 }
+
